@@ -26,10 +26,14 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - [Birthday detail view](issues/11-birthday-detail-view.md) — Variant A: image hero + person ellipsis, name/group/zodiac card, one tappable card per event.
 - [Settings screen scope](issues/10-settings-screen.md) — hamburger has Settings/Notifications/Backup; date presets; theme system default; per-event year toggle; filters reset on open; expanding FAB.
 - [Manage Groups screen](issues/13-people-groups-screen.md) — add/delete groups only; assignment lives in person detail; simple list + trash.
+- [Days-remaining edge cases](issues/14-days-remaining-edge-cases.md) — "Today" for same-day; always count forward; Feb 29 observed Feb 28 in non-leap years.
+- [Notification timezone handling](issues/15-notification-timezone.md) — reschedule pending notifications on timezone change at same local time; local-day boundaries.
+- [Backup format versioning](issues/16-backup-format-versioning.md) — versioned JSON + base64 photos (v1); migrate old→new; reject new→old; revisit zip if large.
+- [Notification deep-link](issues/17-notification-deeplink.md) — tap opens person's detail view; deep-link via id in payload.
 
 ## Not yet specified
 
-<!-- none — see live tickets 14–17 -->
+<!-- none -->
 
 ## Out of scope
 
