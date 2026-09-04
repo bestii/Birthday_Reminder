@@ -20,6 +20,10 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - [Notification rule semantics](issues/05-notification-rules.md) — rule = timing (0–30 days, 0=on-day) + per-rule time + group filter; one default (on-day 9:00 AM everyone); one event → one notification.
 - [Finalize the person-centric data model](issues/06-data-model-finalize.md) — Person must have ≥1 Event; Birthday is default stored event; built-in types fixed; one nullable birth_date; single-person events only.
 - [Search, filter, and sort semantics](issues/07-search-filter-sort.md) — controls only on Home header (search + filter + hamburger); sort date/A–Z; event-type filter then group pills; Calendar shows all.
+- [Zodiac sign display](issues/12-zodiac-sign.md) — from birth date (month+day only); global toggle, off by default; shown in detail view only.
+- [Home screen prototype](issues/08-home-screen-prototype.md) — Variant A: hamburger+search+filter icons, group pills, month-grouped cards, floating + FAB.
+- [Calendar screen prototype](issues/09-calendar-screen-prototype.md) — Variant B: month grid + selected-day cards, today ring, uniform dots, add-event + beside date label.
+- [Birthday detail view](issues/11-birthday-detail-view.md) — Variant A: image hero + person ellipsis, name/group/zodiac card, one tappable card per event.
 
 ## Not yet specified
 
