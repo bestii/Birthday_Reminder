@@ -1,6 +1,6 @@
 # Search, filter, and sort semantics
 
-Status: open
+Status: claimed
 Type: grilling
 
 ## Question

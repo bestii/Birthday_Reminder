@@ -5,15 +5,15 @@ A local-first birthday and events reminder app for Android (iOS later via Expo).
 ## Language
 
 **Person**:
-The core entity — someone you want to remember. Has a name, profile photo, birth date (optional), and groups. Every event attaches to a person.
+The core entity — someone you want to remember. Has a name, profile photo, birth date (optional), and groups. Must have at least one Event; a Birthday is the default event on creation.
 _Avoid_: Contact, friend, entry
 
 **Event**:
-A recurring (annual) significant date attached to a Person. Has a type, date, and notes.
+A recurring (annual) significant date attached to a Person. Has a type, date, and notes. A Person always has at least one.
 _Avoid_: Reminder, occasion
 
 **Event Type**:
-A category of event: Birthday, Anniversary, Memorial, plus custom user-defined types.
+A category of event: Birthday, Anniversary, Memorial (fixed built-ins), plus custom user-defined types.
 _Avoid_: Kind, category
 
 **Group**:

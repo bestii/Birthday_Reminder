@@ -17,6 +17,8 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - [Local persistence / storage choice](issues/02-local-persistence.md) — use `expo-sqlite` (SQLite); relational model, Expo Go compatible, same schema on iOS.
 - [Calendar UI component choice](issues/03-calendar-component.md) — use `react-native-calendars`; pure JS, `markedDates` + `onDayPress` + `FlatList`.
 - [Backup/restore via Android Storage Access Framework in Expo](issues/04-backup-saf-expo.md) — managed Expo can export/import via SAF directory picker + document picker; no eject, no native module needed for v1.
+- [Notification rule semantics](issues/05-notification-rules.md) — rule = timing (0–30 days, 0=on-day) + per-rule time + group filter; one default (on-day 9:00 AM everyone); one event → one notification.
+- [Finalize the person-centric data model](issues/06-data-model-finalize.md) — Person must have ≥1 Event; Birthday is default stored event; built-in types fixed; one nullable birth_date; single-person events only.
 
 ## Not yet specified
 
