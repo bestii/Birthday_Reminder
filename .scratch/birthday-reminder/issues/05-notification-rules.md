@@ -1,6 +1,6 @@
 # Notification rule semantics
 
-Status: open
+Status: claimed
 Type: grilling
 Blocked by: 01
 

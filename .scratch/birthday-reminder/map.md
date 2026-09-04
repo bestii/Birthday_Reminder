@@ -13,6 +13,11 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 
 <!-- one line per closed ticket -->
 
+- [Notification engine choice (expo-notifications vs Notifee)](issues/01-notification-engine.md) — use `expo-notifications` alone; declare `USE_EXACT_ALARM` manually; app-side layer computes "X days before" and schedules next N one-shot triggers.
+- [Local persistence / storage choice](issues/02-local-persistence.md) — use `expo-sqlite` (SQLite); relational model, Expo Go compatible, same schema on iOS.
+- [Calendar UI component choice](issues/03-calendar-component.md) — use `react-native-calendars`; pure JS, `markedDates` + `onDayPress` + `FlatList`.
+- [Backup/restore via Android Storage Access Framework in Expo](issues/04-backup-saf-expo.md) — managed Expo can export/import via SAF directory picker + document picker; no eject, no native module needed for v1.
+
 ## Not yet specified
 
 - Couple/group anniversaries: an event whose date belongs to two people (how is the date stored and displayed?).
@@ -20,6 +25,7 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - Notification timezone handling when the device changes timezones.
 - Backup format versioning / forward migration.
 - Notification deep-link into a specific event or person.
+- Date format options: which formats are offered and where they apply.
 
 ## Out of scope
 
@@ -27,3 +33,4 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - Google Contacts import (v2 candidate).
 - iOS build (future effort; Expo keeps the door open).
 - One-off (non-annual) events (v1 is annual-only).
+- Custom avatar images within the app (v2; v1 uses camera/gallery photo).
