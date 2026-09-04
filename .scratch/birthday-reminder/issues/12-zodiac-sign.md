@@ -1,6 +1,6 @@
 # Zodiac sign display
 
-Status: open
+Status: claimed
 Type: grilling
 Blocked by: 06
 
