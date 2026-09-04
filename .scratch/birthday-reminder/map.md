@@ -21,18 +21,15 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - [Finalize the person-centric data model](issues/06-data-model-finalize.md) — Person must have ≥1 Event; Birthday is default stored event; built-in types fixed; one nullable birth_date; single-person events only.
 - [Search, filter, and sort semantics](issues/07-search-filter-sort.md) — controls only on Home header (search + filter + hamburger); sort date/A–Z; event-type filter then group pills; Calendar shows all.
 - [Zodiac sign display](issues/12-zodiac-sign.md) — from birth date (month+day only); global toggle, off by default; shown in detail view only.
-- [Home screen prototype](issues/08-home-screen-prototype.md) — Variant A: hamburger+search+filter icons, group pills, month-grouped cards, floating + FAB.
+- [Home screen prototype](issues/08-home-screen-prototype.md) — Variant A: hamburger+search+filter icons, group pills, month-grouped cards, expanding FAB (Add Birthday / Add Event / Manage Groups).
 - [Calendar screen prototype](issues/09-calendar-screen-prototype.md) — Variant B: month grid + selected-day cards, today ring, uniform dots, add-event + beside date label.
 - [Birthday detail view](issues/11-birthday-detail-view.md) — Variant A: image hero + person ellipsis, name/group/zodiac card, one tappable card per event.
+- [Settings screen scope](issues/10-settings-screen.md) — hamburger has Settings/Notifications/Backup; date presets; theme system default; per-event year toggle; filters reset on open; expanding FAB.
+- [Manage Groups screen](issues/13-people-groups-screen.md) — add/delete groups only; assignment lives in person detail; simple list + trash.
 
 ## Not yet specified
 
-- Couple/group anniversaries: an event whose date belongs to two people (how is the date stored and displayed?).
-- "Days remaining" edge cases: birthday passed today, leap-day (Feb 29) handling.
-- Notification timezone handling when the device changes timezones.
-- Backup format versioning / forward migration.
-- Notification deep-link into a specific event or person.
-- Date format options: which formats are offered and where they apply.
+<!-- none — see live tickets 14–17 -->
 
 ## Out of scope
 
@@ -41,3 +38,4 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - iOS build (future effort; Expo keeps the door open).
 - One-off (non-annual) events (v1 is annual-only).
 - Custom avatar images within the app (v2; v1 uses camera/gallery photo).
+- Couple/group anniversaries (v1 is single-person events only — see [Finalize the person-centric data model](issues/06-data-model-finalize.md)).

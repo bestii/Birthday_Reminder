@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Birthday detail view prototype — Birthday Reminder</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel2:#1f232c; --text:#e8eaf0; --muted:#9aa3b2; --accent:#5b8cff; --accent2:#7c5cff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); }
+  .phone { max-width:390px; margin:0 auto; min-height:100vh; background:var(--bg); position:relative; padding-bottom:90px; border-left:1px solid #222; border-right:1px solid #222; }
+  .muted { color:var(--muted); }
+  .avatar { border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 auto; }
+  .chip { display:inline-block; padding:3px 9px; border-radius:999px; font-size:12px; background:var(--panel2); color:var(--text); border:1px solid #2a2f3a; }
+  .back { background:var(--panel); border:1px solid #2a2f3a; border-radius:10px; color:var(--text); padding:8px 12px; font-size:13px; cursor:pointer; margin:14px; }
+  .section-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); margin:16px 14px 8px; }
+  /* A: image hero + person card + event cards */
+  .A .hero-img { margin:0; height:220px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; position:relative; }
+  .A .hero-img .avatar { width:120px; height:120px; font-size:42px; background:rgba(255,255,255,.95); color:#222; }
+  .A .hero-img .ellipsis { position:absolute; top:12px; right:12px; width:38px; height:38px; border-radius:10px; background:rgba(0,0,0,.4); color:#fff; border:none; font-size:20px; cursor:pointer; }
+  .A .back { margin:0; position:absolute; top:12px; left:12px; background:rgba(0,0,0,.4); border:none; color:#fff; }
+  .A .person-card { margin:-20px 14px 0; position:relative; background:var(--panel); border:1px solid #262b35; border-radius:16px; padding:16px; }
+  .A .person-card .name { font-size:20px; font-weight:800; }
+  .A .person-card .sub { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+  .A .events { margin:14px; }
+  .A .event-card { background:var(--panel); border:1px solid #262b35; border-radius:16px; padding:16px; margin-bottom:10px; position:relative; }
+  .A .event-card .etype { font-weight:700; font-size:15px; margin-bottom:8px; }
+  .A .event-card .detail { font-size:13px; color:var(--muted); margin:3px 0; }
+  .A .event-card .detail b { color:var(--text); font-weight:700; }
+  .A .event-card .countdown { margin-top:10px; font-size:22px; font-weight:800; color:var(--accent); }
+  .A .event-card .countdown small { display:block; font-size:11px; color:var(--muted); font-weight:600; }
+  .menu { display:none; position:absolute; right:12px; top:44px; background:var(--panel2); border:1px solid #3a4150; border-radius:12px; padding:6px; z-index:5; min-width:140px; }
+  .menu.open { display:block; }
+  .menu button { display:block; width:100%; text-align:left; background:transparent; border:none; color:var(--text); padding:8px 10px; border-radius:8px; font-size:13px; cursor:pointer; }
+  .menu button:hover { background:var(--panel); }
+  .menu button.danger { color:var(--red,#ff5c7a); }
+  /* B: split layout */
+  .B .top { display:flex; gap:14px; align-items:center; margin:0 14px; }
+  .B .top .avatar { width:72px; height:72px; font-size:24px; }
+  .B .top .name { font-size:20px; font-weight:800; }
+  .B .top .type { margin-top:4px; }
+  .B .stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px; }
+  .B .stat { background:var(--panel); border:1px solid #262b35; border-radius:14px; padding:14px; text-align:center; }
+  .B .stat .v { font-size:22px; font-weight:800; color:var(--accent); }
+  .B .stat .l { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-top:2px; }
+  .B .list { margin:0 14px; }
+  .B .list .item { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #222; font-size:14px; }
+  .B .list .item .k { color:var(--muted); }
+  /* C: timeline detail */
+  .C .banner { margin:0 14px; padding:16px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:18px; display:flex; align-items:center; gap:14px; }
+  .C .banner .avatar { width:60px; height:60px; font-size:20px; background:#fff; color:#222; }
+  .C .banner .name { font-size:20px; font-weight:800; }
+  .C .banner .type { margin-top:2px; opacity:.9; }
+  .C .timeline { margin:14px; }
+  .C .tl-row { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid #222; }
+  .C .tl-row .icon { width:34px; height:34px; border-radius:10px; background:var(--panel); border:1px solid #2a2f3a; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .C .tl-row .k { color:var(--muted); font-size:12px; }
+  .C .tl-row .v { font-size:15px; font-weight:700; }
+  .switcher { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; background:#2a2f3a; border:1px solid #3a4150; padding:10px 16px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,.5); z-index:99; }
+  .switcher button { background:var(--accent); color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer; }
+  .switcher .label { font-size:13px; font-weight:700; min-width:170px; text-align:center; }
+</style>
+</head>
+<body>
+  <div class="phone" id="app"></div>
+  <div class="switcher">
+    <button id="prev">←</button>
+    <span class="label" id="label"></span>
+    <button id="next">→</button>
+  </div>
+<script>
+  const VARIANTS = ['A','B','C'];
+  const NAMES = { A:'Hero card + facts', B:'Split stats grid', C:'Banner + timeline' };
+  const params = new URLSearchParams(location.search);
+  let current = params.get('variant') || 'A';
+  if (!VARIANTS.includes(current)) current = 'A';
+
+  const person = { name:'Maya Chen', type:'Birthday', groups:['Family'], zodiac:'Aquarius', days:'11', age:'32', birthday:'Jan 14', bornDay:'Friday', nextDate:'Wed, Jan 14', initials:'MC' };
+  const events = [
+    { type:'Birthday', details:[
+      ['Born on','Friday, Jan 14'],
+      ['Next birthday','11 days · Wed, Jan 14'],
+      ['Turns','32'],
+      ['Zodiac','Aquarius'],
+    ]},
+    { type:'Anniversary', details:[
+      ['Date','Jun 21'],
+      ['Notes','Married 5 years'],
+    ]},
+    { type:'Memorial', details:[
+      ['Date','Mar 3'],
+      ['Notes','In loving memory'],
+    ]},
+  ];
+  const upcoming = [
+    { name:'Diego Ruiz', date:'Jan 28', days:'16', initials:'DR' },
+    { name:'Aisha Patel', date:'Feb 3', days:'22', initials:'AP' },
+    { name:'Samir Nair', date:'Feb 19', days:'38', initials:'SN' },
+  ];
+
+  function render() {
+    const app = document.getElementById('app');
+    app.className = current;
+    document.getElementById('label').textContent = current + ' — ' + NAMES[current];
+    if (current === 'A') app.innerHTML = variantA();
+    if (current === 'B') app.innerHTML = variantB();
+    if (current === 'C') app.innerHTML = variantC();
+    if (current === 'A') bindDetailMenus();
+    params.set('variant', current);
+    history.replaceState({}, '', '?' + params.toString());
+  }
+
+  function eventCardHTML(e, idx) {
+    const rows = e.details.map(([k,v])=>`<div class="detail"><b>${k}:</b> ${v}</div>`).join('');
+    const isBirthday = e.type === 'Birthday';
+    const countdown = isBirthday ? `<div class="countdown">${person.days}<small>days until</small></div>` : '';
+    return `
+      <div class="event-card">
+        <div class="etype">${e.type}</div>
+        ${rows}
+        ${countdown}
+      </div>`;
+  }
+
+  function variantA() {
+    return `
+      <div class="hero-img">
+        <button class="back">←</button>
+        <button class="ellipsis" data-menu="person-menu">⋮</button>
+        <div class="avatar">${person.initials}</div>
+        <div class="menu" id="person-menu">
+          <button>Edit person</button>
+          <button>Assign to group</button>
+          <button class="danger">Delete person</button>
+        </div>
+      </div>
+      <div class="person-card">
+        <div class="name">${person.name}</div>
+        <div class="sub">
+          ${person.groups.map(g=>`<span class="chip">${g}</span>`).join('')}
+          <span class="chip">♒ ${person.zodiac}</span>
+        </div>
+      </div>
+      <div class="section-title">Events</div>
+      <div class="events">
+        ${events.map((e,i)=>eventCardHTML(e,i)).join('')}
+      </div>
+    `;
+  }
+
+  function bindDetailMenus() {
+    document.querySelectorAll('.A .ellipsis').forEach(btn=>{
+      btn.onclick = (e)=>{
+        e.stopPropagation();
+        const id = btn.dataset.menu;
+        document.querySelectorAll('.A .menu').forEach(m=>{ if (m.id !== id) m.classList.remove('open'); });
+        const menu = document.getElementById(id);
+        if (menu) menu.classList.toggle('open');
+      };
+    });
+    document.addEventListener('click', ()=> document.querySelectorAll('.A .menu').forEach(m=>m.classList.remove('open')));
+  }
+
+  function variantB() {
+    return `
+      <button class="back">← Back</button>
+      <div class="top">
+        <div class="avatar">${person.initials}</div>
+        <div>
+          <div class="name">${person.name}</div>
+          <div class="type"><span class="chip">${person.type}</span></div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="v">${person.days}</div><div class="l">Days</div></div>
+        <div class="stat"><div class="v">${person.age}</div><div class="l">Turning</div></div>
+      </div>
+      <div class="section-title">Details</div>
+      <div class="list">
+        <div class="item"><span class="k">Birthday</span><span>${person.birthday}</span></div>
+        <div class="item"><span class="k">Zodiac</span><span>${person.zodiac}</span></div>
+        <div class="item"><span class="k">Group</span><span>${person.groups.join(', ')}</span></div>
+      </div>
+      <div class="section-title">Upcoming</div>
+      <div class="list">
+        ${upcoming.map(u=>`<div class="item"><span>${u.name}</span><span class="muted">${u.days}d</span></div>`).join('')}
+      </div>
+    `;
+  }
+
+  function variantC() {
+    return `
+      <button class="back">← Back</button>
+      <div class="banner">
+        <div class="avatar">${person.initials}</div>
+        <div>
+          <div class="name">${person.name}</div>
+          <div class="type"><span class="chip">${person.type}</span></div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="tl-row"><div class="icon">🎂</div><div><div class="k">Birthday</div><div class="v">${person.birthday}</div></div></div>
+        <div class="tl-row"><div class="icon">⏳</div><div><div class="k">Days until</div><div class="v">${person.days} days</div></div></div>
+        <div class="tl-row"><div class="icon">🔢</div><div><div class="k">Age (turning)</div><div class="v">${person.age}</div></div></div>
+        <div class="tl-row"><div class="icon">♒</div><div><div class="k">Zodiac</div><div class="v">${person.zodiac}</div></div></div>
+        <div class="tl-row"><div class="icon">👥</div><div><div class="k">Group</div><div class="v">${person.groups.join(', ')}</div></div></div>
+      </div>
+      <div class="section-title">Upcoming birthdays</div>
+      <div class="timeline">
+        ${upcoming.map(u=>`<div class="tl-row"><div class="icon">👤</div><div><div class="k">${u.date}</div><div class="v">${u.name}</div></div><div style="margin-left:auto;color:var(--accent);font-weight:700;">${u.days}d</div></div>`).join('')}
+      </div>
+    `;
+  }
+
+  document.getElementById('prev').onclick = ()=>{ current = VARIANTS[(VARIANTS.indexOf(current)+VARIANTS.length-1)%VARIANTS.length]; render(); };
+  document.getElementById('next').onclick = ()=>{ current = VARIANTS[(VARIANTS.indexOf(current)+1)%VARIANTS.length]; render(); };
+  document.addEventListener('keydown', (e)=>{
+    if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
+    if (e.key === 'ArrowLeft') document.getElementById('prev').click();
+    if (e.key === 'ArrowRight') document.getElementById('next').click();
+  });
+  render();
+</script>
+</body>
+</html>

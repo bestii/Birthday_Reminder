@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Home screen prototype — Birthday Reminder</title>
+<style>
+  :root { --bg:#0f1115; --panel:#181b22; --panel2:#1f232c; --text:#e8eaf0; --muted:#9aa3b2; --accent:#5b8cff; --accent2:#7c5cff; --green:#3ddc84; --amber:#f5b942; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); }
+  .phone { max-width:390px; margin:0 auto; min-height:100vh; background:var(--bg); position:relative; padding-bottom:90px; border-left:1px solid #222; border-right:1px solid #222; }
+  /* shared */
+  .muted { color:var(--muted); }
+  .chip { display:inline-block; padding:3px 9px; border-radius:999px; font-size:12px; background:var(--panel2); color:var(--text); border:1px solid #2a2f3a; }
+  .chip.active { background:var(--accent); border-color:var(--accent); }
+  .avatar { border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 auto; }
+  .section-title { font-size:13px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--muted); margin:18px 14px 8px; }
+  /* variant A: list cards */
+  .A .header { position:sticky; top:0; background:rgba(15,17,21,.94); padding:12px 14px; z-index:5; }
+  .A .header .row { display:flex; gap:8px; align-items:center; }
+  .A .search { flex:1; background:var(--panel); border:1px solid #2a2f3a; border-radius:10px; padding:8px 10px; color:var(--text); font-size:14px; }
+  .A .icon-btn { width:38px; height:38px; border-radius:10px; background:var(--panel); border:1px solid #2a2f3a; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; }
+  .A .icon-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .A .pills { display:flex; gap:6px; padding:10px 14px 2px; overflow-x:auto; }
+  .A .pills .chip { cursor:pointer; }
+  .A .search-row { display:none; padding:10px 14px 0; }
+  .A .search-row.open { display:block; }
+  .A .search-row input { width:100%; background:var(--panel); border:1px solid #2a2f3a; border-radius:10px; padding:9px 10px; color:var(--text); font-size:14px; }
+  .A .filter-panel { display:none; margin:10px 14px 0; padding:12px; background:var(--panel); border:1px solid #2a2f3a; border-radius:12px; }
+  .A .filter-panel.open { display:block; }
+  .A .filter-panel .flabel { font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); margin:0 0 8px; }
+  .A .filter-panel .fopt { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .A .filter-panel .fopt .chip { cursor:pointer; }
+  .A .filter-panel .fopt .chip.active { background:var(--accent); border-color:var(--accent); }
+  .A .card { display:flex; gap:12px; align-items:center; background:var(--panel); margin:8px 14px; padding:12px; border-radius:14px; border:1px solid #262b35; }
+  .A .card .avatar { width:48px; height:48px; font-size:18px; }
+  .A .card .name { font-weight:700; font-size:16px; }
+  .A .card .meta { font-size:13px; color:var(--muted); margin-top:2px; }
+  .A .card .tags { margin-top:6px; display:flex; gap:4px; flex-wrap:wrap; }
+  .A .days { margin-left:auto; text-align:right; flex:0 0 auto; }
+  .A .days .num { font-size:22px; font-weight:800; color:var(--accent); }
+  .A .days .lbl { font-size:11px; color:var(--muted); }
+  .A .fab { position:fixed; bottom:64px; right:calc(50% - 195px + 16px); width:56px; height:56px; border-radius:50%; background:var(--accent); color:#fff; font-size:26px; border:none; box-shadow:0 6px 18px rgba(91,140,255,.4); }
+  /* variant B: month chips + timeline */
+  .B .header { padding:14px 14px 6px; }
+  .B .header .top { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+  .B .search { flex:1; background:var(--panel); border:1px solid #2a2f3a; border-radius:10px; padding:8px 10px; color:var(--text); }
+  .B .icon-btn { width:38px; height:38px; border-radius:10px; background:var(--panel); border:1px solid #2a2f3a; display:flex; align-items:center; justify-content:center; }
+  .B .months { display:flex; gap:8px; overflow-x:auto; padding:4px 0 10px; }
+  .B .month { padding:7px 13px; border-radius:999px; background:var(--panel); font-size:13px; border:1px solid #2a2f3a; white-space:nowrap; }
+  .B .month.active { background:var(--accent); border-color:var(--accent); }
+  .B .timeline { margin:6px 14px; }
+  .B .tl-item { display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid #222; }
+  .B .tl-item .avatar { width:44px; height:44px; }
+  .B .tl-item .name { font-weight:700; }
+  .B .tl-item .meta { font-size:12px; color:var(--muted); }
+  .B .days-badge { margin-left:auto; background:var(--accent); color:#fff; padding:4px 10px; border-radius:999px; font-size:13px; font-weight:700; }
+  .B .quick { display:flex; gap:8px; padding:12px 14px 0; }
+  .B .quick button { flex:1; padding:10px; border-radius:12px; background:var(--panel); color:var(--text); border:1px solid #2a2f3a; font-size:13px; font-weight:600; }
+  /* variant C: avatar grid */
+  .C .header { padding:14px; }
+  .C .header .top { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .C .search { flex:1; background:var(--panel); border:1px solid #2a2f3a; border-radius:10px; padding:8px 10px; color:var(--text); }
+  .C .icon-btn { width:38px; height:38px; border-radius:10px; background:var(--panel); border:1px solid #2a2f3a; display:flex; align-items:center; justify-content:center; }
+  .C .quick { display:flex; gap:8px; }
+  .C .quick button { flex:1; padding:10px; border-radius:12px; background:var(--accent); color:#fff; border:none; font-size:13px; font-weight:700; }
+  .C .quick button.secondary { background:var(--panel); color:var(--text); border:1px solid #2a2f3a; }
+  .C .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:8px 14px; }
+  .C .tile { text-align:center; }
+  .C .tile .avatar { width:72px; height:72px; margin:0 auto; font-size:24px; }
+  .C .tile .name { font-size:13px; font-weight:700; margin-top:6px; }
+  .C .tile .meta { font-size:11px; color:var(--muted); }
+  .C .tile .days { font-size:11px; color:var(--accent); font-weight:700; }
+  /* switcher */
+  .switcher { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; background:#2a2f3a; border:1px solid #3a4150; padding:10px 16px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,.5); z-index:99; }
+  .switcher button { background:var(--accent); color:#fff; border:none; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer; }
+  .switcher .label { font-size:13px; font-weight:700; min-width:150px; text-align:center; }
+</style>
+</head>
+<body>
+  <div class="phone" id="app"></div>
+  <div class="switcher">
+    <button id="prev">←</button>
+    <span class="label" id="label"></span>
+    <button id="next">→</button>
+  </div>
+<script>
+  const VARIANTS = ['A','B','C'];
+  const NAMES = { A:'List cards + FAB', B:'Month chips + timeline', C:'Avatar grid + action row' };
+  const params = new URLSearchParams(location.search);
+  let current = params.get('variant') || 'A';
+  if (!VARIANTS.includes(current)) current = 'A';
+
+  const people = [
+    { name:'Maya Chen', month:'January', birthday:'Jan 14', days:'2', groups:['Family'], initials:'MC', color:'a' },
+    { name:'Diego Ruiz', month:'January', birthday:'Jan 28', days:'16', groups:['Friends','Work'], initials:'DR', color:'b' },
+    { name:'Aisha Patel', month:'February', birthday:'Feb 3', days:'22', groups:['Friends'], initials:'AP', color:'c' },
+    { name:'Samir Nair', month:'February', birthday:'Feb 19', days:'38', groups:['Family'], initials:'SN', color:'d' },
+    { name:'Lena Hoffmann', month:'March', birthday:'Mar 5', days:'52', groups:['Work'], initials:'LH', color:'e' },
+  ];
+
+  function render() {
+    const app = document.getElementById('app');
+    app.className = current;
+    const label = document.getElementById('label');
+    label.textContent = current + ' — ' + NAMES[current];
+    if (current === 'A') app.innerHTML = variantA();
+    if (current === 'B') app.innerHTML = variantB();
+    if (current === 'C') app.innerHTML = variantC();
+    renderInteractive();
+    params.set('variant', current);
+    history.replaceState({}, '', '?' + params.toString());
+  }
+
+  const stateA = { search:'', group:null, sort:'date', type:null, searchOpen:false, filterOpen:false };
+
+  function variantA() {
+    return `
+      <div class="header">
+        <div class="row">
+          <div class="icon-btn" id="a-ham">☰</div>
+          <div class="icon-btn" id="a-search">🔍</div>
+          <div class="icon-btn" id="a-filter">⌄</div>
+        </div>
+        <div class="search-row" id="a-search-row">
+          <input id="a-search-input" placeholder="Search by name" value="${stateA.search}" />
+        </div>
+        <div class="filter-panel" id="a-filter-panel">
+          <div class="flabel">Sort by</div>
+          <div class="fopt">
+            <span class="chip ${stateA.sort==='date'?'active':''}" data-sort="date">Date</span>
+            <span class="chip ${stateA.sort==='name'?'active':''}" data-sort="name">A–Z</span>
+          </div>
+          <div class="flabel">Event type</div>
+          <div class="fopt">
+            <span class="chip ${stateA.type===null?'active':''}" data-type="">All events</span>
+            <span class="chip ${stateA.type==='Birthday'?'active':''}" data-type="Birthday">Birthday</span>
+            <span class="chip ${stateA.type==='Anniversary'?'active':''}" data-type="Anniversary">Anniversary</span>
+            <span class="chip ${stateA.type==='Memorial'?'active':''}" data-type="Memorial">Memorial</span>
+          </div>
+        </div>
+        <div class="pills" id="a-group-pills">
+          <span class="chip ${stateA.group===null?'active':''}" data-group="">All groups</span>
+          <span class="chip ${stateA.group==='Family'?'active':''}" data-group="Family">Family</span>
+          <span class="chip ${stateA.group==='Friends'?'active':''}" data-group="Friends">Friends</span>
+          <span class="chip ${stateA.group==='Work'?'active':''}" data-group="Work">Work</span>
+        </div>
+      </div>
+      <div id="a-list">
+        ${filteredListA()}
+      </div>
+      <button class="fab">+</button>
+    `;
+  }
+
+  function filteredListA() {
+    let rows = people.filter(p => {
+      const nameOk = !stateA.search || p.name.toLowerCase().includes(stateA.search.toLowerCase());
+      const groupOk = !stateA.group || p.groups.includes(stateA.group);
+      return nameOk && groupOk;
+    });
+    if (stateA.sort === 'name') {
+      rows = [...rows].sort((a,b)=>a.name.localeCompare(b.name));
+      return rows.map(p=>`
+        <div class="card">
+          <div class="avatar">${p.initials}</div>
+          <div>
+            <div class="name">${p.name}</div>
+            <div class="meta">${p.birthday}</div>
+            <div class="tags">${p.groups.map(g=>`<span class="chip">${g}</span>`).join('')}</div>
+          </div>
+          <div class="days"><div class="num">${p.days}</div><div class="lbl">days</div></div>
+        </div>`).join('');
+    }
+    const months = [];
+    const seen = new Set();
+    for (const p of rows) if (!seen.has(p.month)) { seen.add(p.month); months.push(p.month); }
+    return months.map(m => monthGroup(m, rows)).join('');
+  }
+
+  function monthGroup(month, rows) {
+    const list = (rows || people).filter(p=>p.month===month);
+    if (!list.length) return '';
+    const cards = list.map(p=>`
+      <div class="card">
+        <div class="avatar">${p.initials}</div>
+        <div>
+          <div class="name">${p.name}</div>
+          <div class="meta">${p.birthday}</div>
+          <div class="tags">${p.groups.map(g=>`<span class="chip">${g}</span>`).join('')}</div>
+        </div>
+        <div class="days"><div class="num">${p.days}</div><div class="lbl">days</div></div>
+      </div>`).join('');
+    return `<div class="section-title">${month}</div>${cards}`;
+  }
+
+  function variantB() {
+    const items = people.map(p=>`
+      <div class="tl-item">
+        <div class="avatar">${p.initials}</div>
+        <div>
+          <div class="name">${p.name}</div>
+          <div class="meta">${p.birthday} · ${p.groups.join(', ')}</div>
+        </div>
+        <div class="days-badge">${p.days}d</div>
+      </div>`).join('');
+    return `
+      <div class="header">
+        <div class="top">
+          <div class="search">🔍 Search by name</div>
+          <div class="icon-btn">☰</div>
+        </div>
+        <div class="months">
+          <span class="month active">Jan</span>
+          <span class="month">Feb</span>
+          <span class="month">Mar</span>
+          <span class="month">Apr</span>
+          <span class="month">May</span>
+          <span class="month">Jun</span>
+        </div>
+      </div>
+      <div class="quick">
+        <button>+ Birthday</button>
+        <button>+ Event</button>
+        <button>Groups</button>
+      </div>
+      <div class="timeline">${items}</div>
+    `;
+  }
+
+  function variantC() {
+    const grid = people.map(p=>`
+      <div class="tile">
+        <div class="avatar">${p.initials}</div>
+        <div class="name">${p.name}</div>
+        <div class="meta">${p.birthday}</div>
+        <div class="days">in ${p.days} days</div>
+      </div>`).join('');
+    return `
+      <div class="header">
+        <div class="top">
+          <div class="search">🔍 Search by name</div>
+          <div class="icon-btn">☰</div>
+        </div>
+        <div class="quick">
+          <button>+ Birthday</button>
+          <button class="secondary">+ Event</button>
+          <button class="secondary">Groups</button>
+        </div>
+      </div>
+      <div class="section-title">January</div>
+      <div class="grid">${grid}</div>
+    `;
+  }
+
+  function bindA() {
+    const ham = document.getElementById('a-ham');
+    const search = document.getElementById('a-search');
+    const filter = document.getElementById('a-filter');
+    const input = document.getElementById('a-search-input');
+    const pills = document.getElementById('a-group-pills');
+    const panel = document.getElementById('a-filter-panel');
+
+    if (ham) ham.onclick = ()=>{ alert('Hamburger: Settings · Notifications · Backup (prototype)'); };
+
+    if (search && input) {
+      search.onclick = ()=>{
+        stateA.searchOpen = !stateA.searchOpen;
+        const row = document.getElementById('a-search-row');
+        if (row) row.classList.toggle('open', stateA.searchOpen);
+        search.classList.toggle('active', stateA.searchOpen);
+        if (stateA.searchOpen) setTimeout(()=>input.focus(), 0);
+      };
+      input.oninput = (e)=>{ stateA.search = e.target.value; refreshA(); };
+    }
+
+    if (filter) filter.onclick = ()=>{
+      stateA.filterOpen = !stateA.filterOpen;
+      if (panel) panel.classList.toggle('open', stateA.filterOpen);
+      filter.classList.toggle('active', stateA.filterOpen);
+    };
+
+    if (pills) pills.addEventListener('click', (e)=>{
+      const c = e.target.closest('.chip'); if (!c) return;
+      stateA.group = c.dataset.group === '' ? null : c.dataset.group;
+      reRenderA();
+    });
+
+    if (panel) panel.addEventListener('click', (e)=>{
+      const c = e.target.closest('.chip'); if (!c) return;
+      if (c.dataset.sort !== undefined) stateA.sort = c.dataset.sort;
+      if (c.dataset.type !== undefined) stateA.type = c.dataset.type === '' ? null : c.dataset.type;
+      reRenderA();
+    });
+  }
+
+  function reRenderA() {
+    const app = document.getElementById('app');
+    app.innerHTML = variantA();
+    bindA();
+  }
+
+  function refreshA() {
+    const list = document.getElementById('a-list');
+    if (list) list.innerHTML = filteredListA();
+    const row = document.getElementById('a-search-row');
+    const panel = document.getElementById('a-filter-panel');
+    if (row) row.classList.toggle('open', stateA.searchOpen);
+    if (panel) panel.classList.toggle('open', stateA.filterOpen);
+  }
+
+  function renderInteractive() {
+    if (current === 'A') bindA();
+  }
+
+  document.getElementById('prev').onclick = ()=>{ current = VARIANTS[(VARIANTS.indexOf(current)+VARIANTS.length-1)%VARIANTS.length]; render(); };
+  document.getElementById('next').onclick = ()=>{ current = VARIANTS[(VARIANTS.indexOf(current)+1)%VARIANTS.length]; render(); };
+  document.addEventListener('keydown', (e)=>{
+    if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
+    if (e.key === 'ArrowLeft') document.getElementById('prev').click();
+    if (e.key === 'ArrowRight') document.getElementById('next').click();
+  });
+  render();
+</script>
+</body>
+</html>
