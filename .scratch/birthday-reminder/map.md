@@ -31,6 +31,7 @@ A locked, buildable spec plus domain glossary for a local-first birthday & event
 - [Backup format versioning](issues/16-backup-format-versioning.md) — versioned JSON + base64 photos (v1); migrate old→new; reject new→old; revisit zip if large.
 - [Notification deep-link](issues/17-notification-deeplink.md) — tap opens person's detail view; deep-link via id in payload.
 - [Notification delivery & battery optimization](issues/18-notification-delivery-battery.md) — no background service; `USE_EXACT_ALARM` only (skip battery-exemption); schedule horizon N = 12 months.
+- [UI component library choice](issues/19-ui-library.md) — use `react-native-paper` (Material Design 3); bridged to `ThemeContext` via `PaperProvider`.
 
 ## Not yet specified
 
