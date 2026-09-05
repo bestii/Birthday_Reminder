@@ -9,4 +9,5 @@
 - [ ] App boots in Expo Go / dev client to Home + Calendar tabs.
 - [ ] Dependencies installed and wired: expo-sqlite, expo-notifications, react-native-calendars, expo-image-picker, navigation.
 - [ ] `USE_EXACT_ALARM` declared in app config; notification channel setup stubbed.
+- [ ] No `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` or battery-optimization exemption requested (not needed — see issue 18).
 - [ ] Theme renders light/dark/system from a stored preference (default: system), verified via a temporary toggle.
