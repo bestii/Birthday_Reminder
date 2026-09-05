@@ -6,6 +6,8 @@
 
 **Status:** ready-for-agent
 
+- [ ] Android notification channel `birthday-reminders` is created at startup (re-established here; was removed from the scaffold to keep Expo Go bootable).
+
 - [ ] Default rule seeded: on-day 9:00 AM, all groups (everyone).
 - [ ] Rules compute fire dates: timing 0–30 (0 = on-day), per-rule time, group filter (none = everyone).
 - [ ] One event → one notification (no collapsing multiple events).

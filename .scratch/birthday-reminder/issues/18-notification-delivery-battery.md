@@ -19,3 +19,5 @@ We never run a background service — notifications are OS-scheduled exact alarm
 - **OEM aggressive killers** — minimal exposure since we run no service; residual risk lives only in the refresh window below.
 
 **Scheduling horizon N = 12 months.** The scheduler computes every matching event's next fire date for the coming 12 months and schedules those one-shot triggers, recomputing on launch / data change / timezone change. This bounds the "user never reopens the app" failure to a year, not a week. `N` is expressed as a named constant so it can be tuned without touching scheduling logic.
+
+**Runtime environment for notification work.** We use local notifications only — no push/remote notifications, no FCM token registration. Local scheduling still works in Expo Go, but Expo Go cannot honour our `USE_EXACT_ALARM` permission or the `expo-notifications` config plugin (it ships a fixed prebuilt manifest). Notification tickets (13–15) must therefore be built and verified in a **development build** (`npx expo run:android`); Expo Go is acceptable for UI-only tickets. The `expo-notifications` `defaultChannel` is FCM-push-only and is intentionally left unset.
