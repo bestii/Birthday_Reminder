@@ -4,11 +4,11 @@
 
 **Blocked by:** 01 — App scaffold & navigation shell
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Opening the app creates/migrates the schema idempotently; `user_version` bumps cleanly.
-- [ ] WAL and `PRAGMA foreign_keys = ON` are active.
-- [ ] Built-in event types (Birthday, Anniversary, Memorial) are seeded and non-deletable/non-renamable.
-- [ ] CRUD for person, event, event_type, group, notification_rule, and person_group works with FK constraints.
-- [ ] Creating a Person always creates a default Birthday event; deleting a Person's last Event is prevented.
-- [ ] Deleting a Person cascades to its Events and group links.
+- [x] Opening the app creates/migrates the schema idempotently; `user_version` bumps cleanly.
+- [x] WAL and `PRAGMA foreign_keys = ON` are active.
+- [x] Built-in event types (Birthday, Anniversary, Memorial) are seeded and non-deletable/non-renamable.
+- [x] CRUD for person, event, event_type, group, notification_rule, and person_group works with FK constraints.
+- [x] Creating a Person always creates a default Birthday event; deleting a Person's last Event is prevented.
+- [x] Deleting a Person cascades to its Events and group links.
