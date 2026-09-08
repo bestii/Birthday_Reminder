@@ -35,3 +35,17 @@ export interface NotificationRule {
   created_at: number;
   updated_at: number;
 }
+
+export interface ListEventRow {
+  id: number;
+  person_id: number;
+  event_type_id: number;
+  date: string;
+  notes: string | null;
+  show_year: number;
+  created_at: number;
+  updated_at: number;
+  person_name: string;
+  person_photo_path: string | null;
+  group_ids: string | null;
+}

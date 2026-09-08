@@ -136,6 +136,49 @@ describe('persons & events', () => {
   });
 });
 
+describe('listUpcomingEvents', () => {
+  it('returns one row per event with joined person fields', () => {
+    const { repo } = makeRepo();
+    const ada = repo.createPerson({ name: 'Ada', birthDate: '1990-01-15' });
+    const upcoming = repo.listUpcomingEvents();
+    expect(upcoming).toHaveLength(1);
+    expect(upcoming[0].person.name).toBe('Ada');
+    expect(upcoming[0].event.date).toBe('1990-01-15');
+    expect(upcoming[0].event.person_id).toBe(ada.id);
+  });
+
+  it('emits multiple cards for one person with multiple events', () => {
+    const { repo } = makeRepo();
+    const person = repo.createPerson({ name: 'Ada' });
+    const anniversary = repo.listEventTypes().find((t) => t.name === 'Anniversary')!;
+    repo.createEventForPerson({
+      personId: person.id,
+      eventTypeId: anniversary.id,
+      date: '2024-05-20',
+    });
+    const upcoming = repo.listUpcomingEvents();
+    expect(upcoming).toHaveLength(2);
+    expect(upcoming.every((u) => u.person.id === person.id)).toBe(true);
+    expect(upcoming.every((u) => u.person.name === 'Ada')).toBe(true);
+  });
+
+  it('parses comma-separated group_ids into a number array', () => {
+    const { repo } = makeRepo();
+    const g1 = repo.createGroup({ name: 'Family' });
+    const g2 = repo.createGroup({ name: 'Work' });
+    const person = repo.createPerson({ name: 'Ada' });
+    repo.assignGroupsToPerson(person.id, [g1.id, g2.id]);
+    const upcoming = repo.listUpcomingEvents();
+    expect(upcoming[0].groupIds.sort()).toEqual([g1.id, g2.id].sort());
+  });
+
+  it('returns an empty groupIds array when the person has no groups', () => {
+    const { repo } = makeRepo();
+    repo.createPerson({ name: 'Ada' });
+    expect(repo.listUpcomingEvents()[0].groupIds).toEqual([]);
+  });
+});
+
 describe('groups', () => {
   it('assigns and lists groups for a person', () => {
     const { repo } = makeRepo();

@@ -1,5 +1,12 @@
 import type { SqliteConnection } from './connection';
-import type { Event, EventType, Group, NotificationRule, Person } from './types';
+import type {
+  Event,
+  EventType,
+  Group,
+  ListEventRow,
+  NotificationRule,
+  Person,
+} from './types';
 
 const BUILTIN_BIRTHDAY = 'Birthday';
 
@@ -41,6 +48,12 @@ export interface PersonWithGroups extends Person {
 
 export interface PersonWithEvents extends Person {
   events: Event[];
+  groupIds: number[];
+}
+
+export interface UpcomingEvent {
+  event: Event;
+  person: { id: number; name: string; photo_path: string | null };
   groupIds: number[];
 }
 
@@ -222,6 +235,39 @@ export class Repository {
     return this.db.all<Event>('SELECT * FROM event WHERE person_id = ? ORDER BY date ASC', [
       personId,
     ]);
+  }
+
+  listUpcomingEvents(): UpcomingEvent[] {
+    const rows = this.db.all<ListEventRow>(
+      `SELECT
+         e.id, e.person_id, e.event_type_id, e.date, e.notes, e.show_year,
+         e.created_at, e.updated_at,
+         p.name AS person_name, p.photo_path AS person_photo_path,
+         (SELECT GROUP_CONCAT(pg.group_id)
+            FROM person_group pg
+            WHERE pg.person_id = e.person_id) AS group_ids
+       FROM event e
+       JOIN person p ON p.id = e.person_id
+       ORDER BY e.date ASC`,
+    );
+    return rows.map((row) => ({
+      event: {
+        id: row.id,
+        person_id: row.person_id,
+        event_type_id: row.event_type_id,
+        date: row.date,
+        notes: row.notes,
+        show_year: row.show_year,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      },
+      person: {
+        id: row.person_id,
+        name: row.person_name,
+        photo_path: row.person_photo_path,
+      },
+      groupIds: row.group_ids ? row.group_ids.split(',').map(Number) : [],
+    }));
   }
 
   createEventForPerson(input: CreateEventInput): Event {
