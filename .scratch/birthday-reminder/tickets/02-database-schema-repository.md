@@ -1,6 +1,6 @@
 # 02 — Database schema & repository
 
-**What to build:** The SQLite layer — schema for `person`, `event`, `event_type`, `group`, `notification_rule`, and the `person_group` join — with migrations keyed by `user_version`, WAL and foreign keys enabled, built-in event types seeded (Birthday, Anniversary, Memorial), and typed CRUD for every entity. The repository enforces "every Person has at least one Event" and "single-person events only".
+**What to build:** The SQLite layer — schema for `person` (no birth_date; all dates live on Event), `event`, `event_type`, `group`, `notification_rule`, `person_group`, `notification_rule_group` — with migrations keyed by `user_version`, WAL and foreign keys enabled, built-in event types seeded (Birthday, Anniversary, Memorial), and typed CRUD for every entity. The repository enforces "every Person has at least one Event" and "single-person events only". Birth dates are NOT NULL on the Event row; no placeholder, no magic value, no nullable date.
 
 **Blocked by:** 01 — App scaffold & navigation shell
 

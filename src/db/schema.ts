@@ -11,7 +11,6 @@ export const MIGRATIONS: readonly string[] = [
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     photo_path TEXT,
-    birth_date TEXT,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
   );

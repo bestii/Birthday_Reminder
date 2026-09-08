@@ -136,8 +136,8 @@ export class Repository {
   createPerson(input: CreatePersonInput): Person {
     const ts = now();
     const result = this.db.run(
-      'INSERT INTO person (name, photo_path, birth_date, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
-      [input.name, input.photoPath ?? null, input.birthDate ?? null, ts, ts],
+      'INSERT INTO person (name, photo_path, created_at, updated_at) VALUES (?, ?, ?, ?)',
+      [input.name, input.photoPath ?? null, ts, ts],
     );
     const personId = result.lastInsertRowId;
 
@@ -196,10 +196,6 @@ export class Repository {
     if (input.photoPath !== undefined) {
       sets.push('photo_path = ?');
       params.push(input.photoPath);
-    }
-    if (input.birthDate !== undefined) {
-      sets.push('birth_date = ?');
-      params.push(input.birthDate);
     }
     sets.push('updated_at = ?');
     params.push(now());

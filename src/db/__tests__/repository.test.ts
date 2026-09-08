@@ -23,6 +23,12 @@ describe('schema & migration', () => {
     });
   });
 
+  it('does not have a birth_date column on person', () => {
+    const { db } = makeRepo();
+    const cols = db.prepare('PRAGMA table_info(person)').all() as Array<{ name: string }>;
+    expect(cols.map((c) => c.name)).not.toContain('birth_date');
+  });
+
   it('seeds the three built-in event types exactly once', () => {
     const { repo } = makeRepo();
     const types = repo.listEventTypes();

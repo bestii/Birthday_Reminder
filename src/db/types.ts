@@ -2,7 +2,6 @@ export interface Person {
   id: number;
   name: string;
   photo_path: string | null;
-  birth_date: string | null;
   created_at: number;
   updated_at: number;
 }
