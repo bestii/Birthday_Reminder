@@ -4,10 +4,10 @@
 
 **Blocked by:** 01 — App scaffold & navigation shell
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Days-remaining returns "Today" for same-day and counts forward, wrapping to next year once the date passes.
-- [ ] Feb 29 observes Feb 28 in non-leap years and Feb 29 in leap years, for all annual event types.
-- [ ] Zodiac is computed from month+day only, correct across cusp boundaries.
-- [ ] All three date-format presets render correctly.
-- [ ] Unit tests cover the edge cases above.
+- [x] Days-remaining returns "Today" for same-day and counts forward, wrapping to next year once the date passes.
+- [x] Feb 29 observes Feb 28 in non-leap years and Feb 29 in leap years, for all annual event types.
+- [x] Zodiac is computed from month+day only, correct across cusp boundaries.
+- [x] All three date-format presets render correctly.
+- [x] Unit tests cover the edge cases above.
