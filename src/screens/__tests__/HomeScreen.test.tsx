@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
 
 import { HomeScreen, type HomeNavigationTarget } from '../HomeScreen';
@@ -22,7 +23,9 @@ async function renderHome(
   return render(
     <ThemeProvider>
       <PaperProvider>
-        <HomeScreen repository={repo} onNavigate={onNavigate} />
+        <NavigationContainer>
+          <HomeScreen repository={repo} onNavigate={onNavigate} />
+        </NavigationContainer>
       </PaperProvider>
     </ThemeProvider>,
   );
@@ -80,6 +83,17 @@ describe('HomeScreen — group pills', () => {
     const { getByTestId, getByText } = await renderHome(repo);
     expect(getByTestId('group-pills')).toBeTruthy();
     expect(getByText('Coworkers')).toBeTruthy();
+  });
+
+  it('reflects groups created after the screen first rendered when it regains focus', async () => {
+    const repo = makeRepo();
+    const utils = await renderHome(repo);
+    expect(utils.queryByText('Coworkers')).toBeNull();
+
+    repo.createGroup({ name: 'Coworkers' });
+
+    const utils2 = await renderHome(repo);
+    expect(utils2.getByText('Coworkers')).toBeTruthy();
   });
 });
 

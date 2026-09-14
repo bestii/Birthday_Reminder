@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton, Text } from 'react-native-paper';
 
 import type { Repository } from '../db/repository';
+import type { Group } from '../db/types';
 import type { HomeDestination } from '../navigation/types';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -31,8 +33,15 @@ export function HomeScreen({ repository, onNavigate }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
   const [menuOpen, setMenuOpen] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
-  const people = repository.listPeople();
-  const groups = repository.listGroups();
+  const [people, setPeople] = useState(() => repository.listPeople());
+  const [groups, setGroups] = useState<Group[]>(() => repository.listGroups());
+
+  useFocusEffect(
+    useCallback(() => {
+      setPeople(repository.listPeople());
+      setGroups(repository.listGroups());
+    }, [repository]),
+  );
 
   const toggleFab = () => setFabOpen((o) => !o);
   const pickFromFab = (target: HomeDestination) => {
