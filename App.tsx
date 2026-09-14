@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { getRepository, type Repository } from './src/db';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -14,11 +15,13 @@ export default function App() {
   }, []);
 
   return (
-    <ThemeProvider>
-      <AppPaperProvider>
-        {repo ? <RootNavigator repository={repo} /> : null}
-        <StatusBar style="auto" />
-      </AppPaperProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppPaperProvider>
+          {repo ? <RootNavigator repository={repo} /> : null}
+          <StatusBar style="auto" />
+        </AppPaperProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }

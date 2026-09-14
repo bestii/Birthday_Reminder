@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton, Text } from 'react-native-paper';
 
 import type { Repository } from '../db/repository';
@@ -27,6 +28,7 @@ const FAB_ENTRIES: { label: string; target: HomeDestination }[] = [
 
 export function HomeScreen({ repository, onNavigate }: HomeScreenProps) {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [menuOpen, setMenuOpen] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const people = repository.listPeople();
@@ -45,7 +47,7 @@ export function HomeScreen({ repository, onNavigate }: HomeScreenProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 4 }]}>
         <IconButton
           icon="menu"
           accessibilityLabel="Open menu"
@@ -103,7 +105,7 @@ export function HomeScreen({ repository, onNavigate }: HomeScreenProps) {
         </ScrollView>
       )}
       {fabOpen ? (
-        <View style={styles.fabGroup}>
+        <View style={[styles.fabGroup, { bottom: insets.bottom + 88 }]}>
           {FAB_ENTRIES.map((entry) => (
             <Pressable
               key={entry.target}
@@ -121,7 +123,7 @@ export function HomeScreen({ repository, onNavigate }: HomeScreenProps) {
         accessibilityRole="button"
         accessibilityLabel="Toggle add menu"
         onPress={toggleFab}
-        style={[styles.fabMain, { backgroundColor: colors.accent }]}
+        style={[styles.fabMain, { backgroundColor: colors.accent, bottom: insets.bottom + 16 }]}
       >
         <Text style={styles.fabMainLabel}>{fabOpen ? '×' : '+'}</Text>
       </Pressable>
@@ -132,7 +134,10 @@ export function HomeScreen({ repository, onNavigate }: HomeScreenProps) {
           onPress={closeMenu}
         >
           <Pressable
-            style={[styles.menuSheet, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            style={[
+              styles.menuSheet,
+              { backgroundColor: colors.surface, borderColor: colors.border, marginTop: insets.top + 56 },
+            ]}
             onPress={() => {}}
           >
             {MENU_ENTRIES.map((entry) => (
@@ -164,7 +169,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 4,
-    paddingTop: 4,
   },
   headerRight: {
     flexDirection: 'row',
@@ -256,7 +260,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   menuSheet: {
-    marginTop: 56,
     marginLeft: 8,
     borderWidth: 1,
     borderRadius: 8,
