@@ -4,6 +4,8 @@ import { createExpoSqliteConnection } from './expo-adapter';
 import { migrate } from './migrate';
 import { Repository } from './repository';
 
+export type { Repository } from './repository';
+
 const DATABASE_NAME = 'birthday-reminder.db';
 
 let repo: Repository | null = null;
