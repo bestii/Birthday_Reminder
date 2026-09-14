@@ -19,7 +19,7 @@ describe('schema & migration', () => {
     migrate(conn);
     migrate(conn); // idempotent
     expect(conn.get<{ user_version: number }>('PRAGMA user_version')).toEqual({
-      user_version: 1,
+      user_version: 2,
     });
   });
 
@@ -38,6 +38,22 @@ describe('schema & migration', () => {
       'Birthday',
       'Memorial',
     ]);
+  });
+
+  it('seeds Friends, Family, and Work as default groups', () => {
+    const { repo } = makeRepo();
+    expect(repo.listGroups().map((g) => g.name).sort()).toEqual([
+      'Family',
+      'Friends',
+      'Work',
+    ]);
+  });
+
+  it('seeded defaults are deletable', () => {
+    const { repo } = makeRepo();
+    const family = repo.listGroups().find((g) => g.name === 'Family')!;
+    repo.deleteGroup(family.id);
+    expect(repo.listGroups().map((g) => g.name)).toEqual(['Friends', 'Work']);
   });
 });
 
@@ -123,7 +139,7 @@ describe('persons & events', () => {
 
   it('cascades event and group-link deletion when a person is deleted', () => {
     const { db, repo } = makeRepo();
-    const group = repo.createGroup({ name: 'Family' });
+    const group = repo.findGroupByName('Family')!;
     const person = repo.createPerson({ name: 'Ada' });
     repo.assignGroupsToPerson(person.id, [group.id]);
 
@@ -164,8 +180,8 @@ describe('listUpcomingEvents', () => {
 
   it('parses comma-separated group_ids into a number array', () => {
     const { repo } = makeRepo();
-    const g1 = repo.createGroup({ name: 'Family' });
-    const g2 = repo.createGroup({ name: 'Work' });
+    const g1 = repo.findGroupByName('Family')!;
+    const g2 = repo.findGroupByName('Work')!;
     const person = repo.createPerson({ name: 'Ada' });
     repo.assignGroupsToPerson(person.id, [g1.id, g2.id]);
     const upcoming = repo.listUpcomingEvents();
@@ -182,8 +198,8 @@ describe('listUpcomingEvents', () => {
 describe('groups', () => {
   it('assigns and lists groups for a person', () => {
     const { repo } = makeRepo();
-    const g1 = repo.createGroup({ name: 'Family' });
-    const g2 = repo.createGroup({ name: 'Work' });
+    const g1 = repo.findGroupByName('Family')!;
+    const g2 = repo.findGroupByName('Work')!;
     const person = repo.createPerson({ name: 'Ada' });
     repo.assignGroupsToPerson(person.id, [g1.id, g2.id]);
     expect(repo.getPersonWithGroups(person.id).groupIds.sort()).toEqual([g1.id, g2.id]);
@@ -191,7 +207,7 @@ describe('groups', () => {
 
   it('cascades group-link deletion when a group is deleted', () => {
     const { db, repo } = makeRepo();
-    const group = repo.createGroup({ name: 'Family' });
+    const group = repo.findGroupByName('Family')!;
     const person = repo.createPerson({ name: 'Ada' });
     repo.assignGroupsToPerson(person.id, [group.id]);
     repo.deleteGroup(group.id);
@@ -201,8 +217,9 @@ describe('groups', () => {
 
   it('listGroupsWithPeopleCount returns each group with its assigned person count', () => {
     const { repo } = makeRepo();
-    const family = repo.createGroup({ name: 'Family' });
-    const work = repo.createGroup({ name: 'Work' });
+    const family = repo.findGroupByName('Family')!;
+    const work = repo.findGroupByName('Work')!;
+    const friends = repo.findGroupByName('Friends')!;
     const empty = repo.createGroup({ name: 'Empty' });
     const ada = repo.createPerson({ name: 'Ada' });
     const ben = repo.createPerson({ name: 'Ben' });
@@ -215,18 +232,22 @@ describe('groups', () => {
     expect(counts).toEqual([
       { id: empty.id, name: 'Empty', peopleCount: 0 },
       { id: family.id, name: 'Family', peopleCount: 2 },
+      { id: friends.id, name: 'Friends', peopleCount: 0 },
       { id: work.id, name: 'Work', peopleCount: 2 },
     ]);
   });
 
-  it('listGroupsWithPeopleCount returns an empty array when no groups exist', () => {
+  it('listGroupsWithPeopleCount returns the three defaults when no groups were created', () => {
     const { repo } = makeRepo();
-    expect(repo.listGroupsWithPeopleCount()).toEqual([]);
+    expect(repo.listGroupsWithPeopleCount().map((g) => g.name).sort()).toEqual([
+      'Family',
+      'Friends',
+      'Work',
+    ]);
   });
 
   it('findGroupByName returns the group with a matching name (case-insensitive)', () => {
     const { repo } = makeRepo();
-    repo.createGroup({ name: 'Family' });
     expect(repo.findGroupByName('Family')?.name).toBe('Family');
     expect(repo.findGroupByName('FAMILY')?.name).toBe('Family');
     expect(repo.findGroupByName('missing')).toBeNull();
@@ -241,7 +262,7 @@ describe('notification rules', () => {
     expect(empty.time).toBe('09:00');
     expect(repo.getNotificationRuleGroupIds(empty.id)).toEqual([]);
 
-    const g = repo.createGroup({ name: 'Family' });
+    const g = repo.findGroupByName('Family')!;
     const filtered = repo.createNotificationRule({
       daysBefore: 3,
       time: '08:00',
@@ -252,8 +273,8 @@ describe('notification rules', () => {
 
   it('updates rule group filter', () => {
     const { repo } = makeRepo();
-    const g1 = repo.createGroup({ name: 'Family' });
-    const g2 = repo.createGroup({ name: 'Work' });
+    const g1 = repo.findGroupByName('Family')!;
+    const g2 = repo.findGroupByName('Work')!;
     const rule = repo.createNotificationRule({ daysBefore: 1, time: '09:00', groupIds: [g1.id] });
     repo.updateNotificationRule(rule.id, { groupIds: [g2.id] });
     expect(repo.getNotificationRuleGroupIds(rule.id)).toEqual([g2.id]);

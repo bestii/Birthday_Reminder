@@ -65,21 +65,21 @@ describe('HomeScreen — empty state', () => {
 });
 
 describe('HomeScreen — group pills', () => {
-  it('renders no group pills when no groups exist', async () => {
+  it('renders the seeded default pills (Friends, Family, Work) on first install', async () => {
     const repo = makeRepo();
-    const { queryByTestId, queryByText } = await renderHome(repo);
-    expect(queryByTestId('group-pills')).toBeNull();
-    expect(queryByText('Family')).toBeNull();
+    const { getByTestId, getByText } = await renderHome(repo);
+    expect(getByTestId('group-pills')).toBeTruthy();
+    expect(getByText('Friends')).toBeTruthy();
+    expect(getByText('Family')).toBeTruthy();
+    expect(getByText('Work')).toBeTruthy();
   });
 
   it('renders a chip for each existing group', async () => {
     const repo = makeRepo();
-    repo.createGroup({ name: 'Family' });
-    repo.createGroup({ name: 'Work' });
+    repo.createGroup({ name: 'Coworkers' });
     const { getByTestId, getByText } = await renderHome(repo);
     expect(getByTestId('group-pills')).toBeTruthy();
-    expect(getByText('Family')).toBeTruthy();
-    expect(getByText('Work')).toBeTruthy();
+    expect(getByText('Coworkers')).toBeTruthy();
   });
 });
 

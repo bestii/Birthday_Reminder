@@ -15,6 +15,12 @@ function makeRepo(): Repository {
   return new Repository(conn);
 }
 
+function wipeGroups(repo: Repository): void {
+  for (const g of repo.listGroups()) {
+    repo.deleteGroup(g.id);
+  }
+}
+
 async function renderScreen(repo: Repository) {
   return render(
     <ThemeProvider>
@@ -28,17 +34,27 @@ async function renderScreen(repo: Repository) {
 describe('ManageGroupsScreen — empty state', () => {
   it('shows the empty-state prompt when no groups exist', async () => {
     const repo = makeRepo();
+    wipeGroups(repo);
     const { findByText } = await renderScreen(repo);
     const prompt = await findByText(/No groups yet\. Tap \+ to create your first group\./);
     expect(prompt).toBeTruthy();
+  });
+
+  it('does not show the empty state on first install — the three defaults are seeded', async () => {
+    const repo = makeRepo();
+    const { queryByText, findByText } = await renderScreen(repo);
+    expect(queryByText(/No groups yet\. Tap \+ to create your first group\./)).toBeNull();
+    expect(await findByText('Friends')).toBeTruthy();
+    expect(await findByText('Family')).toBeTruthy();
+    expect(await findByText('Work')).toBeTruthy();
   });
 });
 
 describe('ManageGroupsScreen — list', () => {
   it('renders a row per group with name and people count', async () => {
     const repo = makeRepo();
-    const family = repo.createGroup({ name: 'Family' });
-    const work = repo.createGroup({ name: 'Work' });
+    const family = repo.findGroupByName('Family')!;
+    const work = repo.findGroupByName('Work')!;
     const ada = repo.createPerson({ name: 'Ada' });
     const ben = repo.createPerson({ name: 'Ben' });
     repo.assignGroupsToPerson(ada.id, [family.id, work.id]);
@@ -59,10 +75,9 @@ describe('ManageGroupsScreen — list', () => {
 
   it('shows a delete-group button per row', async () => {
     const repo = makeRepo();
-    repo.createGroup({ name: 'Family' });
     const { findAllByLabelText } = await renderScreen(repo);
     const buttons = await findAllByLabelText(/Delete group/);
-    expect(buttons).toHaveLength(1);
+    expect(buttons).toHaveLength(3);
   });
 });
 
@@ -77,49 +92,53 @@ describe('ManageGroupsScreen — add flow', () => {
 
   it('creates a group from a non-empty name and closes the dialog', async () => {
     const repo = makeRepo();
+    const before = repo.listGroups().length;
     const { getByLabelText, findByPlaceholderText, findByText, queryByText } =
       await renderScreen(repo);
 
     fireEvent.press(getByLabelText('Add group'));
     const input = await findByPlaceholderText('Group name');
-    fireEvent.changeText(input, 'Friends');
+    fireEvent.changeText(input, 'Coworkers');
     fireEvent.press(await findByText('Add'));
 
     await waitFor(() => {
       expect(queryByText('New Group')).toBeNull();
     });
-    expect(repo.listGroups().map((g) => g.name)).toEqual(['Friends']);
+    expect(repo.listGroups()).toHaveLength(before + 1);
+    expect(repo.listGroups().map((g) => g.name)).toContain('Coworkers');
   });
 
   it('does not create a group for an empty or whitespace name', async () => {
     const repo = makeRepo();
+    const before = repo.listGroups().length;
     const { getByLabelText, findByPlaceholderText, findByText } = await renderScreen(repo);
     fireEvent.press(getByLabelText('Add group'));
     const input = await findByPlaceholderText('Group name');
     fireEvent.changeText(input, '   ');
     const addButton = await findByText('Add');
     fireEvent.press(addButton);
-    expect(repo.listGroups()).toEqual([]);
+    expect(repo.listGroups()).toHaveLength(before);
     expect(await findByText('New Group')).toBeTruthy();
   });
 
-  it('does not create a duplicate group with the same (trimmed) name', async () => {
+  it('does not create a duplicate group with the same (trimmed) name as a seeded default', async () => {
     const repo = makeRepo();
-    repo.createGroup({ name: 'Family' });
+    const before = repo.listGroups().length;
     const { getByLabelText, findByPlaceholderText, findByText } = await renderScreen(repo);
     fireEvent.press(getByLabelText('Add group'));
     const input = await findByPlaceholderText('Group name');
-    fireEvent.changeText(input, '  Family  ');
+    fireEvent.changeText(input, '  family  ');
     fireEvent.press(await findByText('Add'));
-    expect(repo.listGroups()).toHaveLength(1);
+    expect(repo.listGroups()).toHaveLength(before);
   });
 
   it('cancel dismisses the dialog without creating a group', async () => {
     const repo = makeRepo();
+    const before = repo.listGroups().length;
     const { getByLabelText, findByText } = await renderScreen(repo);
     fireEvent.press(getByLabelText('Add group'));
     fireEvent.press(await findByText('Cancel'));
-    expect(repo.listGroups()).toEqual([]);
+    expect(repo.listGroups()).toHaveLength(before);
   });
 
   it('shows a validation error when the name is empty', async () => {
@@ -133,48 +152,50 @@ describe('ManageGroupsScreen — add flow', () => {
 
   it('newly added group appears in the list', async () => {
     const repo = makeRepo();
-    const { getByLabelText, findByPlaceholderText, findByText, findAllByText } =
-      await renderScreen(repo);
+    const { getByLabelText, findByPlaceholderText, findByText } = await renderScreen(repo);
     fireEvent.press(getByLabelText('Add group'));
     const input = await findByPlaceholderText('Group name');
-    fireEvent.changeText(input, 'Friends');
+    fireEvent.changeText(input, 'Coworkers');
     fireEvent.press(await findByText('Add'));
-    expect(await findByText('Friends')).toBeTruthy();
-    expect((await findAllByText('0 people')).length).toBeGreaterThanOrEqual(1);
+    expect(await findByText('Coworkers')).toBeTruthy();
   });
 });
 
 describe('ManageGroupsScreen — delete flow', () => {
   it('opens a confirmation dialog when trash is pressed', async () => {
     const repo = makeRepo();
-    repo.createGroup({ name: 'Family' });
     const { findAllByLabelText, findByText } = await renderScreen(repo);
-    const [deleteBtn] = await findAllByLabelText(/Delete group/);
-    fireEvent.press(deleteBtn);
+    const familyDelete = (await findAllByLabelText(/Delete group/)).find((b) =>
+      b.props.accessibilityLabel?.includes('Family'),
+    )!;
+    fireEvent.press(familyDelete);
     expect(await findByText(/Delete "Family"\?/)).toBeTruthy();
   });
 
-  it('deletes the group on confirm and removes it from the list', async () => {
+  it('deletes a seeded default on confirm and removes it from the list', async () => {
     const repo = makeRepo();
-    repo.createGroup({ name: 'Family' });
-    repo.createGroup({ name: 'Work' });
+    const before = repo.listGroups().length;
     const { findAllByLabelText, findByText, queryByText } = await renderScreen(repo);
-    const [deleteBtn] = await findAllByLabelText(/Delete group/);
-    fireEvent.press(deleteBtn);
+    const familyDelete = (await findAllByLabelText(/Delete group/)).find((b) =>
+      b.props.accessibilityLabel?.includes('Family'),
+    )!;
+    fireEvent.press(familyDelete);
     fireEvent.press(await findByText('Delete'));
     await waitFor(() => {
       expect(queryByText('Family')).toBeNull();
     });
-    expect(repo.listGroups().map((g) => g.name)).toEqual(['Work']);
+    expect(repo.listGroups()).toHaveLength(before - 1);
   });
 
   it('cancelling confirmation keeps the group', async () => {
     const repo = makeRepo();
-    repo.createGroup({ name: 'Family' });
+    const before = repo.listGroups().length;
     const { findAllByLabelText, findByText } = await renderScreen(repo);
-    const [deleteBtn] = await findAllByLabelText(/Delete group/);
-    fireEvent.press(deleteBtn);
+    const familyDelete = (await findAllByLabelText(/Delete group/)).find((b) =>
+      b.props.accessibilityLabel?.includes('Family'),
+    )!;
+    fireEvent.press(familyDelete);
     fireEvent.press(await findByText('Cancel'));
-    expect(repo.listGroups()).toHaveLength(1);
+    expect(repo.listGroups()).toHaveLength(before);
   });
 });
