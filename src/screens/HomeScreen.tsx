@@ -194,6 +194,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   pillsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 14,
     paddingTop: 4,
     paddingBottom: 6,
@@ -205,7 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     overflow: 'hidden',
-    marginRight: 6,
+    alignSelf: 'flex-start',
   },
   fabGroup: {
     position: 'absolute',
