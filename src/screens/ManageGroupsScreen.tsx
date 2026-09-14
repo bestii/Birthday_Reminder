@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, IconButton, Text } from 'react-native-paper';
 
 import type {
@@ -25,13 +26,19 @@ interface OverlayProps {
   children: React.ReactNode;
 }
 
-function DialogOverlay({ title, onDismiss, children }: OverlayProps) {
+function DialogOverlay({
+  title,
+  onDismiss,
+  children,
+  topInset,
+  bottomInset,
+}: OverlayProps & { topInset: number; bottomInset: number }) {
   const { colors } = useTheme();
   return (
     <Pressable
       accessibilityLabel="Dismiss dialog"
       onPress={onDismiss}
-      style={styles.backdrop}
+      style={[styles.backdrop, { paddingTop: topInset, paddingBottom: bottomInset }]}
     >
       <Pressable
         style={[
@@ -51,6 +58,7 @@ function DialogOverlay({ title, onDismiss, children }: OverlayProps) {
 
 export function ManageGroupsScreen({ repository }: ManageGroupsScreenProps) {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [groups, setGroups] = useState<GroupWithPeopleCount[]>(() =>
     repository.listGroupsWithPeopleCount(),
   );
@@ -121,7 +129,14 @@ export function ManageGroupsScreen({ repository }: ManageGroupsScreenProps) {
   if (groups.length === 0) {
     return (
       <View
-        style={[styles.emptyContainer, { backgroundColor: colors.background }]}
+        style={[
+          styles.emptyContainer,
+          {
+            backgroundColor: colors.background,
+            paddingTop: insets.top + 24,
+            paddingBottom: insets.bottom + 24,
+          },
+        ]}
       >
         <Text variant="bodyLarge" style={[styles.emptyText, { color: colors.text }]}>
           No groups yet. Tap + to create your first group.
@@ -133,7 +148,12 @@ export function ManageGroupsScreen({ repository }: ManageGroupsScreenProps) {
           onPress={openAdd}
         />
         {addOpen ? (
-          <DialogOverlay title="New Group" onDismiss={() => setAddOpen(false)}>
+          <DialogOverlay
+            title="New Group"
+            onDismiss={() => setAddOpen(false)}
+            topInset={insets.top}
+            bottomInset={insets.bottom}
+          >
             <TextInput
               placeholder="Group name"
               value={newName}
@@ -161,7 +181,7 @@ export function ManageGroupsScreen({ repository }: ManageGroupsScreenProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.headerRow}>
+      <View style={[styles.headerRow, { paddingTop: insets.top + 8 }]}>
         <Text variant="titleLarge" style={{ color: colors.text }}>
           Manage Groups
         </Text>
@@ -176,10 +196,18 @@ export function ManageGroupsScreen({ repository }: ManageGroupsScreenProps) {
         data={groups}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[
+          styles.list,
+          { paddingBottom: insets.bottom + 16 },
+        ]}
       />
       {addOpen ? (
-        <DialogOverlay title="New Group" onDismiss={() => setAddOpen(false)}>
+        <DialogOverlay
+          title="New Group"
+          onDismiss={() => setAddOpen(false)}
+          topInset={insets.top}
+          bottomInset={insets.bottom}
+        >
           <TextInput
             placeholder="Group name"
             value={newName}
@@ -202,7 +230,12 @@ export function ManageGroupsScreen({ repository }: ManageGroupsScreenProps) {
         </DialogOverlay>
       ) : null}
       {deleteTarget ? (
-        <DialogOverlay title={`Delete "${deleteTarget.name}"?`} onDismiss={() => setDeleteTarget(null)}>
+        <DialogOverlay
+          title={`Delete "${deleteTarget.name}"?`}
+          onDismiss={() => setDeleteTarget(null)}
+          topInset={insets.top}
+          bottomInset={insets.bottom}
+        >
           <Text variant="bodyMedium" style={{ color: colors.text, marginBottom: 16 }}>
             This group will be removed. People assigned to it will no longer be
             in this group.
