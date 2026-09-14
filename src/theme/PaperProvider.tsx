@@ -3,6 +3,13 @@ import type { ReactNode } from 'react';
 
 import { useTheme } from './ThemeContext';
 
+const paperSettings = {
+  icon: (props: { name: string; color?: string; size: number; direction?: 'rtl' | 'ltr' }) => {
+    const MaterialCommunityIcons = require('@expo/vector-icons/MaterialCommunityIcons').default;
+    return <MaterialCommunityIcons {...props} color={props.color ?? '#000'} />;
+  },
+};
+
 export function AppPaperProvider({ children }: { children: ReactNode }) {
   const { mode, colors } = useTheme();
 
@@ -21,5 +28,9 @@ export function AppPaperProvider({ children }: { children: ReactNode }) {
     },
   };
 
-  return <PaperProvider theme={theme}>{children}</PaperProvider>;
+  return (
+    <PaperProvider theme={theme} settings={paperSettings}>
+      {children}
+    </PaperProvider>
+  );
 }
