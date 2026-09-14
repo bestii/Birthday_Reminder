@@ -21,8 +21,8 @@ const MENU_ENTRIES: { label: string; target: HomeDestination }[] = [
 ];
 
 const FAB_ENTRIES: { label: string; target: HomeDestination }[] = [
-  { label: 'Add Birthday', target: 'AddBirthday' },
-  { label: 'Add Event', target: 'AddEvent' },
+  { label: 'Add New', target: 'AddBirthday' },
+  { label: 'Add Event Category', target: 'AddEvent' },
   { label: 'Manage Groups', target: 'ManageGroups' },
 ];
 

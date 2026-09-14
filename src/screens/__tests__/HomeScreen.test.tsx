@@ -90,15 +90,15 @@ describe('HomeScreen — FAB', () => {
     expect(getByLabelText('Toggle add menu')).toBeTruthy();
   });
 
-  it('expands to show Add Birthday, Add Event, and Manage Groups after pressing the FAB', async () => {
+  it('expands to show Add New, Add Event Category, and Manage Groups after pressing the FAB', async () => {
     const repo = makeRepo();
     const { getByLabelText, queryByLabelText } = await renderHome(repo);
-    expect(queryByLabelText('Add Birthday')).toBeNull();
-    expect(queryByLabelText('Add Event')).toBeNull();
+    expect(queryByLabelText('Add New')).toBeNull();
+    expect(queryByLabelText('Add Event Category')).toBeNull();
     expect(queryByLabelText('Manage Groups')).toBeNull();
     await fireEvent.press(getByLabelText('Toggle add menu'));
-    expect(getByLabelText('Add Birthday')).toBeTruthy();
-    expect(getByLabelText('Add Event')).toBeTruthy();
+    expect(getByLabelText('Add New')).toBeTruthy();
+    expect(getByLabelText('Add Event Category')).toBeTruthy();
     expect(getByLabelText('Manage Groups')).toBeTruthy();
   });
 
@@ -109,16 +109,16 @@ describe('HomeScreen — FAB', () => {
     await fireEvent.press(getByLabelText('Toggle add menu'));
     await fireEvent.press(getByLabelText('Manage Groups'));
     expect(navigated).toEqual(['ManageGroups']);
-    expect(queryByLabelText('Add Event')).toBeNull();
+    expect(queryByLabelText('Add Event Category')).toBeNull();
   });
 
   it('pressing the FAB again collapses the expanded items', async () => {
     const repo = makeRepo();
     const { getByLabelText, queryByLabelText } = await renderHome(repo);
     await fireEvent.press(getByLabelText('Toggle add menu'));
-    expect(getByLabelText('Add Birthday')).toBeTruthy();
+    expect(getByLabelText('Add New')).toBeTruthy();
     await fireEvent.press(getByLabelText('Toggle add menu'));
-    expect(queryByLabelText('Add Birthday')).toBeNull();
+    expect(queryByLabelText('Add New')).toBeNull();
   });
 });
 

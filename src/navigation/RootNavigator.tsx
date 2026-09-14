@@ -46,7 +46,7 @@ function HomeStackNavigator({ repository }: HomeStackNavigatorProps) {
         )}
       </HomeStack.Screen>
       <HomeStack.Screen name="AddBirthday" component={AddBirthdayScreen} options={{ title: 'Add Birthday' }} />
-      <HomeStack.Screen name="AddEvent" component={AddEventScreen} options={{ title: 'Add Event' }} />
+      <HomeStack.Screen name="AddEvent" component={AddEventScreen} options={{ title: 'Add Event Category' }} />
       <HomeStack.Screen
         name="ManageGroups"
         options={{ title: 'Manage Groups' }}
