@@ -57,6 +57,12 @@ export interface UpcomingEvent {
   groupIds: number[];
 }
 
+export interface GroupWithPeopleCount {
+  id: number;
+  name: string;
+  peopleCount: number;
+}
+
 export class Repository {
   constructor(private readonly db: SqliteConnection) {}
 
@@ -122,6 +128,20 @@ export class Repository {
 
   listGroups(): Group[] {
     return this.db.all<Group>('SELECT * FROM "group" ORDER BY name ASC');
+  }
+
+  findGroupByName(name: string): Group | null {
+    return this.db.get<Group>('SELECT * FROM "group" WHERE LOWER(name) = LOWER(?)', [name]);
+  }
+
+  listGroupsWithPeopleCount(): GroupWithPeopleCount[] {
+    return this.db.all<GroupWithPeopleCount>(
+      `SELECT g.id, g.name, COUNT(pg.person_id) AS peopleCount
+         FROM "group" g
+         LEFT JOIN person_group pg ON pg.group_id = g.id
+         GROUP BY g.id, g.name
+         ORDER BY g.name ASC`,
+    );
   }
 
   deleteGroup(id: number): void {

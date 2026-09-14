@@ -198,6 +198,39 @@ describe('groups', () => {
     const links = db.prepare('SELECT COUNT(*) AS c FROM person_group').get() as { c: number };
     expect(links.c).toBe(0);
   });
+
+  it('listGroupsWithPeopleCount returns each group with its assigned person count', () => {
+    const { repo } = makeRepo();
+    const family = repo.createGroup({ name: 'Family' });
+    const work = repo.createGroup({ name: 'Work' });
+    const empty = repo.createGroup({ name: 'Empty' });
+    const ada = repo.createPerson({ name: 'Ada' });
+    const ben = repo.createPerson({ name: 'Ben' });
+    const cleo = repo.createPerson({ name: 'Cleo' });
+    repo.assignGroupsToPerson(ada.id, [family.id]);
+    repo.assignGroupsToPerson(ben.id, [family.id, work.id]);
+    repo.assignGroupsToPerson(cleo.id, [work.id]);
+
+    const counts = repo.listGroupsWithPeopleCount();
+    expect(counts).toEqual([
+      { id: empty.id, name: 'Empty', peopleCount: 0 },
+      { id: family.id, name: 'Family', peopleCount: 2 },
+      { id: work.id, name: 'Work', peopleCount: 2 },
+    ]);
+  });
+
+  it('listGroupsWithPeopleCount returns an empty array when no groups exist', () => {
+    const { repo } = makeRepo();
+    expect(repo.listGroupsWithPeopleCount()).toEqual([]);
+  });
+
+  it('findGroupByName returns the group with a matching name (case-insensitive)', () => {
+    const { repo } = makeRepo();
+    repo.createGroup({ name: 'Family' });
+    expect(repo.findGroupByName('Family')?.name).toBe('Family');
+    expect(repo.findGroupByName('FAMILY')?.name).toBe('Family');
+    expect(repo.findGroupByName('missing')).toBeNull();
+  });
 });
 
 describe('notification rules', () => {
