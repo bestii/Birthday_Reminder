@@ -49,7 +49,7 @@ function HomeStackNavigator({ repository }: HomeStackNavigatorProps) {
       <HomeStack.Screen name="AddEvent" component={AddEventScreen} options={{ title: 'Add Event Category' }} />
       <HomeStack.Screen
         name="ManageGroups"
-        options={{ title: 'Manage Groups' }}
+        options={{ title: 'Manage Groups', headerShown: false }}
       >
         {() => <ManageGroupsScreen repository={repository} />}
       </HomeStack.Screen>

@@ -56,4 +56,11 @@ export const MIGRATIONS: readonly string[] = [
     ('Anniversary', 1),
     ('Memorial', 1);
   `,
+  // v2 — seed default groups (Friends, Family, Work). Deletable by the user.
+  `
+  INSERT OR IGNORE INTO "group" (name) VALUES
+    ('Friends'),
+    ('Family'),
+    ('Work');
+  `,
 ];
